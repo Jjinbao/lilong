@@ -7,7 +7,7 @@ export default new Router({
     routes: [
         {
             path: '/',
-            redirect: '/order'
+            redirect: '/my-products'
         },
         {
             path: '/',
@@ -25,8 +25,8 @@ export default new Router({
                     neta: {title: '用户详情'}
                 },
                 {
-                    path: '/order',
-                    component: resolve => require(['../components/page/Order.vue'], resolve),
+                    path: '/my-products',
+                    component: resolve => require(['../components/page/MyProducts.vue'], resolve),
                     meta: { title: '订单管理' }
                 },
                 {

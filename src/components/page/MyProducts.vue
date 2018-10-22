@@ -2,62 +2,71 @@
     <div class="table">
         <div class="crumbs">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item><i class="el-icon-tickets"></i> 订单管理</el-breadcrumb-item>
+                <el-breadcrumb-item><i class="el-icon-tickets"></i> 产品列表</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
             <div class="handle-box">
                 <el-form :inline="true">
-                    <el-form-item label="订单状态">
+                    <el-form-item label="产品状态">
                         <el-select v-model="reqParams.status" @change="payTypeChange" placeholder="订单状态">
                             <el-option label="全部" value=""></el-option>
-                            <el-option label="未发货" value="1"></el-option>
-                            <el-option label="部分发货" value="2"></el-option>
-                            <el-option label="全部发货" value="3"></el-option>
+                            <el-option label="关闭" value="1"></el-option>
+                            <el-option label="开放" value="2"></el-option>
+                            <el-option label="新品" value="3"></el-option>
+                            <el-option label="预售新品" value="4"></el-option>
                         </el-select>
-                        <el-input v-model="reqParams.userName" placeholder="请输入客户名" class="handle-input"></el-input>
-                        <el-date-picker
-                            v-model="reqParams.startTime"
-                            align="right"
-                            type="datetime"
-                            placeholder="起始时间"
-                            format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss">
-                        </el-date-picker>
-                        <el-date-picker
-                            v-model="reqParams.endTime"
-                            align="right"
-                            type="datetime"
-                            placeholder="结束时间"
-                            format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss">
-                        </el-date-picker>
+                        <el-input v-model="reqParams.userName" placeholder="请输入品牌/品名" class="handle-input"></el-input>
+                        <!--<el-date-picker-->
+                            <!--v-model="reqParams.startTime"-->
+                            <!--align="right"-->
+                            <!--type="datetime"-->
+                            <!--placeholder="起始时间"-->
+                            <!--format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss">-->
+                        <!--</el-date-picker>-->
+                        <!--<el-date-picker-->
+                            <!--v-model="reqParams.endTime"-->
+                            <!--align="right"-->
+                            <!--type="datetime"-->
+                            <!--placeholder="结束时间"-->
+                            <!--format="yyyy-MM-dd HH:mm:ss" value-format="yyyy-MM-dd HH:mm:ss">-->
+                        <!--</el-date-picker>-->
                         <el-button type="primary" icon="search" @click="searByName">搜索</el-button>
                     </el-form-item>
                     <el-button type="primary" style="float: right" icon="search" @click="addVisible = true">新增订单
                     </el-button>
                 </el-form>
-                <el-form :inline="true">
-                    <el-form-item label="金额信息">
-                        <el-input style="width: 500px" disabled v-model="productMoney.amountContent"></el-input>
-                    </el-form-item>
-                    <el-form-item label="产品信息">
-                        <el-input style="width: 500px" disabled v-model="productMoney.countContent"></el-input>
-                    </el-form-item>
-                </el-form>
+                <!--<el-form :inline="true">-->
+                    <!--<el-form-item label="金额信息">-->
+                        <!--<el-input style="width: 500px" disabled v-model="productMoney.amountContent"></el-input>-->
+                    <!--</el-form-item>-->
+                    <!--<el-form-item label="产品信息">-->
+                        <!--<el-input style="width: 500px" disabled v-model="productMoney.countContent"></el-input>-->
+                    <!--</el-form-item>-->
+                <!--</el-form>-->
             </div>
             <el-table :data="tableData" border style="width: 100%" ref="multipleTable"
                       @selection-change="handleSelectionChange">
                 <!--<el-table-column type="selection" width="55"></el-table-column>-->
-                <el-table-column prop="createDate" label="日期" sortable width="150">
+                <el-table-column prop="createDate" label="品牌" width="150">
                 </el-table-column>
-                <el-table-column prop="userName" label="姓名" width="100">
+                <el-table-column prop="userName" label="品名" width="100">
                 </el-table-column>
-                <el-table-column prop="payNum" label="购买总数" width="100">
+                <el-table-column prop="payNum" label="型号" width="100">
                 </el-table-column>
-                <el-table-column prop="unSendNum" label="未发货数量" width="120">
+                <el-table-column prop="unSendNum" label="规格" width="120">
                 </el-table-column>
-                <el-table-column prop="payAmount" label="支付金额" width="100">
+                <el-table-column prop="payAmount" label="材质" width="100">
                 </el-table-column>
-                <el-table-column prop="payStatus" label="支付状态" width="120">
+                <el-table-column prop="payStatus" label="产品编号" width="120">
+                </el-table-column>
+                <el-table-column prop="payStatus" label="生产日期" width="120">
+                </el-table-column>
+                <el-table-column prop="payStatus" label="创建时间" width="120">
+                </el-table-column>
+                <el-table-column prop="payStatus" label="最后修改时间" width="120">
+                </el-table-column>
+                <el-table-column prop="payStatus" label="状态" width="120">
                 </el-table-column>
                 <el-table-column prop="remark" label="备注">
                 </el-table-column>
@@ -183,9 +192,9 @@
         },
         created() {
             this.$nextTick(() => {
-                this.getData()
-                this.queryProList()
-                this.queryUserList()
+                // this.getData()
+                // this.queryProList()
+                // this.queryUserList()
                 // this.queryTotalMoney()
             })
         },
@@ -219,7 +228,7 @@
             },
             payTypeChange () {
                 this.reqParams.pageNum = 1
-                this.getData()
+                // this.getData()
             },
             addOrder () {
 
