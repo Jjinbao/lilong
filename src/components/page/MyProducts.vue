@@ -10,13 +10,13 @@
                 <el-form :inline="true">
                     <el-form-item label="产品状态">
                         <el-select v-model="reqParams.status" @change="payTypeChange" placeholder="订单状态">
-                            <el-option label="全部" value=""></el-option>
+                            <el-option label="全部" value="-1"></el-option>
                             <el-option label="关闭" value="1"></el-option>
                             <el-option label="开放" value="2"></el-option>
                             <el-option label="新品" value="3"></el-option>
                             <el-option label="预售新品" value="4"></el-option>
                         </el-select>
-                        <el-input v-model="reqParams.userName" placeholder="请输入品牌/品名" class="handle-input"></el-input>
+                        <el-input v-model="reqParams.search" placeholder="请输入品牌/品名" class="handle-input"></el-input>
                         <!--<el-date-picker-->
                             <!--v-model="reqParams.startTime"-->
                             <!--align="right"-->
@@ -33,7 +33,7 @@
                         <!--</el-date-picker>-->
                         <el-button type="primary" icon="search" @click="searByName">搜索</el-button>
                     </el-form-item>
-                    <el-button type="primary" style="float: right" icon="search" @click="addVisible = true">新增订单
+                    <el-button type="primary" style="float: right" icon="search" @click="addProduct">添加产品
                     </el-button>
                 </el-form>
                 <!--<el-form :inline="true">-->
@@ -48,32 +48,35 @@
             <el-table :data="tableData" border style="width: 100%" ref="multipleTable"
                       @selection-change="handleSelectionChange">
                 <!--<el-table-column type="selection" width="55"></el-table-column>-->
-                <el-table-column prop="createDate" label="品牌" width="150">
+                <el-table-column prop="brand" label="品牌">
                 </el-table-column>
-                <el-table-column prop="userName" label="品名" width="100">
+                <el-table-column prop="name" label="品名">
                 </el-table-column>
-                <el-table-column prop="payNum" label="型号" width="100">
+                <el-table-column prop="model" label="型号">
                 </el-table-column>
-                <el-table-column prop="unSendNum" label="规格" width="120">
+                <el-table-column prop="size" label="规格" width="120">
                 </el-table-column>
-                <el-table-column prop="payAmount" label="材质" width="100">
+                <el-table-column prop="material" label="材质">
                 </el-table-column>
-                <el-table-column prop="payStatus" label="产品编号" width="120">
+                <el-table-column prop="code" label="产品编号">
                 </el-table-column>
-                <el-table-column prop="payStatus" label="生产日期" width="120">
+                <el-table-column prop="productionDate" label="生产日期" width="150">
                 </el-table-column>
-                <el-table-column prop="payStatus" label="创建时间" width="120">
+                <el-table-column prop="createDate" label="创建时间" width="150">
                 </el-table-column>
-                <el-table-column prop="payStatus" label="最后修改时间" width="120">
+                <el-table-column prop="lastModified" label="最后修改时间" width="150">
                 </el-table-column>
                 <el-table-column prop="payStatus" label="状态" width="120">
                 </el-table-column>
-                <el-table-column prop="remark" label="备注">
-                </el-table-column>
-                <el-table-column label="操作" width="240">
+                <el-table-column fixed="right" label="操作" width="280">
                     <template slot-scope="scope">
-                        <el-button size="small" @click="orderDetail(scope.$index, scope.row)">订单详情</el-button>
-                        <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">取消订单</el-button>
+                        <el-button type="text" size="small" v-if="scope.row.status != 0" @click="closePro(scope.$index, scope.row)">关闭</el-button>
+                        <el-button type="text" size="small" v-if="scope.row.status == 0" @click="openPro(scope.$index, scope.row)">开放</el-button>
+                        <el-button type="text" size="small" v-if="scope.row.status == 1" @click="newPro(scope.$index, scope.row)">新品</el-button>
+                        <el-button type="text" size="small" v-if="scope.row.status == 1" @click="preNewPro(scope.$index, scope.row)">预售新品</el-button>
+                        <el-button type="text" size="small" v-if="scope.row.status != 0" @click="upToTop(scope.$index, scope.row)">置顶</el-button>
+                        <el-button type="text" size="small" @click="orderDetail(scope.$index, scope.row)">详情</el-button>
+                        <el-button type="text" size="small" @click="proModify(scope.$index, scope.row)">修改</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -178,13 +181,10 @@
                 is_search: false,
                 delVisible: false,
                 reqParams: {
-                    userId: '',
-                    status: '',
+                    status: '-1',
                     pageNum: 1,
                     pageSize: 10,
-                    userName: '',
-                    startTime: '',
-                    endTime: ''
+                    search: ''
                 },
                 idx: -1,
                 productMoney: {}
@@ -192,7 +192,7 @@
         },
         created() {
             this.$nextTick(() => {
-                // this.getData()
+                this.getData()
                 // this.queryProList()
                 // this.queryUserList()
                 // this.queryTotalMoney()
@@ -207,7 +207,7 @@
             // 获取订单列表
             getData() {
                 this.$http({
-                    url: this.baseUrl + '/identity/transOrder/list',
+                    url: this.baseUrl + '/identity/product/pageInfo',
                     method: 'GET',
                     params: this.reqParams
                 }).then((res) => {
@@ -217,10 +217,28 @@
                         this.productMoney.countContent = res.data.data.countContent
                         this.totalElement = res.data.data.count
                         this.tableData.forEach((item) => {
+                            item.status = 1
                             item.payStatus = OrderStatus.orderStatus.get(item.status.toString()).payType
                         })
                     }
                 })
+            },
+            // 置顶按钮
+            upToTop(index, item) {
+
+            },
+            // 关闭按钮
+            closePro(index, item) {
+
+            },
+            openPro(index, item) {
+
+            },
+            newPro(index, item) {
+
+            },
+            preNewPro(index, item) {
+
             },
             searByName () {
                 this.reqParams.pageNum = 1;
@@ -228,10 +246,7 @@
             },
             payTypeChange () {
                 this.reqParams.pageNum = 1
-                // this.getData()
-            },
-            addOrder () {
-
+                this.getData()
             },
             // 保存订单信息
             saveOrder () {
@@ -376,9 +391,19 @@
             handleSelectionChange(val) {
                 this.multipleSelection = val;
             },
+            addProduct() {
+                this.$router.push({
+                    path: '/order-detail?type=add'
+                })
+            },
+            proModify(index, item) {
+                this.$router.push({
+                    path: '/order-detail?type=modify&id=' + item.id
+                })
+            },
             orderDetail (index, item) {
                 this.$router.push({
-                    path: '/order-detail?id=' + item.id
+                    path: '/order-detail?type=detail&id=' + item.id
                 })
             },
             // 保存编辑

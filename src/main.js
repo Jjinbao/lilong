@@ -12,7 +12,7 @@ Vue.use(ElementUI, { size: 'small' });
 axios.interceptors.request.use(
     config => {
         if (localStorage.getItem('ms_token')) {  // 每次发送请求之前判断是否存在token，如果存在，则统一在http请求的header都加上token，不用每次请求都手动添加了
-            // config.headers.token = localStorage.getItem('ms_token');
+            config.headers.token = localStorage.getItem('ms_token');
         }
         return config;
     },
@@ -30,10 +30,10 @@ axios.interceptors.response.use(
             switch (error.response.status) {
                 case 401:
                     // 这里写清除token的代码
-                    // router.replace({
-                    //     path: 'login',
-                    //     query: {redirect: router.currentRoute.fullPath}//登录成功后跳入浏览的当前页面
-                    // })
+                    router.replace({
+                        path: 'login',
+                        query: {redirect: router.currentRoute.fullPath}//登录成功后跳入浏览的当前页面
+                    })
             }
         }
         return Promise.reject(error.response.data)
@@ -41,24 +41,24 @@ axios.interceptors.response.use(
 
 Vue.prototype.baseUrl = config
 //使用钩子函数对路由进行权限跳转
-// router.beforeEach((to, from, next) => {
-//     const role = localStorage.getItem('ms_username');
-//     if(!role && to.path !== '/login'){
-//         next('/login');
-//     }else if(to.meta.permission){
-//         // 如果是管理员权限则可进入，这里只是简单的模拟管理员权限而已
-//         role === 'admin' ? next() : next('/403');
-//     }else{
-//         // 简单的判断IE10及以下不进入富文本编辑器，该组件不兼容
-//         if(navigator.userAgent.indexOf('MSIE') > -1 && to.path === '/editor'){
-//             Vue.prototype.$alert('vue-quill-editor组件不兼容IE10及以下浏览器，请使用更高版本的浏览器查看', '浏览器不兼容通知', {
-//                 confirmButtonText: '确定'
-//             });
-//         }else{
-//             next();
-//         }
-//     }
-// })
+router.beforeEach((to, from, next) => {
+    const role = localStorage.getItem('ms_username');
+    if(!role && to.path !== '/login'){
+        next('/login');
+    }else if(to.meta.permission){
+        // 如果是管理员权限则可进入，这里只是简单的模拟管理员权限而已
+        role === 'admin' ? next() : next('/403');
+    }else{
+        // 简单的判断IE10及以下不进入富文本编辑器，该组件不兼容
+        if(navigator.userAgent.indexOf('MSIE') > -1 && to.path === '/editor'){
+            Vue.prototype.$alert('vue-quill-editor组件不兼容IE10及以下浏览器，请使用更高版本的浏览器查看', '浏览器不兼容通知', {
+                confirmButtonText: '确定'
+            });
+        }else{
+            next();
+        }
+    }
+})
 Vue.prototype.$http = axios;
 new Vue({
     router,

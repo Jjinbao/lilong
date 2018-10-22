@@ -30,55 +30,49 @@
             return {
                 collapse: false,
                 items: [
-
-                    {
-                        icon: 'el-icon-tickets',
-                        index: 'order',
-                        title: '订单管理'
-                    },
                     {
                         icon: 'el-icon-printer',
-                        index: 'products',
+                        index: 'my-products',
                         title: '产品管理'
                     },
-                    {
-                        icon: 'el-icon-service',
-                        index: 'user-manager',
-                        title: '用户管理'
-                    },
-                    {
-                        icon: 'el-icon-menu',
-                        index: 'group-products',
-                        title: '产品组合'
-                    },
-                    {
-                        icon: 'el-icon-edit-outline',
-                        index: 'account',
-                        title: '记账管理'
-                    },
 //                    {
-//                        icon: 'el-icon-date',
-//                        index: '3',
-//                        title: '表单相关',
-//                        subs: [
-//                            {
-//                                index: 'form',
-//                                title: '基本表单'
-//                            },
-//                            {
-//                                index: 'editor',
-//                                title: '富文本编辑器'
-//                            },
-//                            {
-//                                index: 'markdown',
-//                                title: 'markdown编辑器'
-//                            },
-//                            {
-//                                index: 'upload',
-//                                title: '文件上传'
-//                            }
-//                        ]
+//                        icon: 'el-icon-service',
+//                        index: 'user-manager',
+//                        title: '用户管理'
 //                    },
+//                    {
+//                        icon: 'el-icon-menu',
+//                        index: 'group-products',
+//                        title: '产品组合'
+//                    },
+//                    {
+//                        icon: 'el-icon-edit-outline',
+//                        index: 'account',
+//                        title: '记账管理'
+//                    },
+                    {
+                        icon: 'el-icon-date',
+                        index: '3',
+                        title: '表单相关',
+                        subs: [
+                            {
+                                index: 'form',
+                                title: '基本表单'
+                            },
+                            {
+                                index: 'editor',
+                                title: '富文本编辑器'
+                            },
+                            {
+                                index: 'markdown',
+                                title: 'markdown编辑器'
+                            },
+                            {
+                                index: 'upload',
+                                title: '文件上传'
+                            }
+                        ]
+                    },
 //                    {
 //                        icon: 'el-icon-star-on',
 //                        index: 'charts',

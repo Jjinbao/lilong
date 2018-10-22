@@ -1,16 +1,16 @@
 let orderStatus = new Map()
 // 待付款，未申请
 orderStatus.set('0', {
-    payType: '未付款'
+    payType: '关闭'
 })
 orderStatus.set('1', {
-    payType: '已付款'
+    payType: '开放'
 })
 orderStatus.set('2', {
-    payType: '部分发货'
+    payType: '新品'
 })
 orderStatus.set('3', {
-    payType: '全部发货'
+    payType: '预售新品'
 })
 orderStatus.set('4', {
     payType: '已完成'
