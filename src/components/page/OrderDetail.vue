@@ -9,29 +9,29 @@
         <div class="container">
             <el-form ref="form" :model="productEntity" :rules="rules" label-width="80px">
                 <el-form-item prop="name" label="产品名称">
-                    <el-input class="input-width" v-model="productEntity.name"></el-input>
+                    <el-input class="input-width" v-model="productEntity.name" :disabled="isModify"></el-input>
                 </el-form-item>
                 <el-form-item prop="brand" label="产品品牌">
-                    <el-input class="input-width" v-model="productEntity.brand"></el-input>
+                    <el-input class="input-width" v-model="productEntity.brand" :disabled="isModify"></el-input>
                 </el-form-item>
                 <el-form-item prop="model" label="产品型号">
-                    <el-input class="input-width" v-model="productEntity.model"></el-input>
+                    <el-input class="input-width" v-model="productEntity.model" :disabled="isModify"></el-input>
                 </el-form-item>
                 <el-form-item prop="size" label="产品规格">
-                    <el-input class="input-width" v-model="productEntity.size"></el-input>
+                    <el-input class="input-width" v-model="productEntity.size" :disabled="isModify"></el-input>
                 </el-form-item>
                 <el-form-item prop="material" label="产品材质">
-                    <el-input class="input-width" v-model="productEntity.material"></el-input>
+                    <el-input class="input-width" v-model="productEntity.material" :disabled="isModify"></el-input>
                 </el-form-item>
                 <el-form-item prop="code" label="产品编号">
-                    <el-input class="input-width" v-model="productEntity.code"></el-input>
+                    <el-input class="input-width" v-model="productEntity.code" :disabled="isModify"></el-input>
                 </el-form-item>
                 <el-form-item prop="productionDate" label="生产日期">
                     <el-date-picker class="input-width" v-model="productEntity.productionDate" value-format="yyyy-MM-dd"
-                                    format="yyyy-MM-dd" type="date" placeholder="生产日期"></el-date-picker>
+                                    format="yyyy-MM-dd" type="date" placeholder="生产日期" :disabled="isModify"></el-date-picker>
                 </el-form-item>
                 <el-form-item label="产品状态" prop="status">
-                    <el-select class="input-width" v-model="productEntity.status">
+                    <el-select class="input-width" v-model="productEntity.status" :disabled="isModify">
                         <el-option label="关闭" value="0"></el-option>
                         <el-option label="开放" value="1"></el-option>
                         <el-option label="新品" value="2"></el-option>
@@ -41,13 +41,15 @@
                 <el-form-item label="注意事项">
                     <quill-editor class="input-width-area"
                                   ref="myTextEditor"
+                                  :disabled="isModify"
                                   v-model="productEntity.notice"
                                   :options="editorNoticeOption" @change="onEditorChange($event)"></quill-editor>
                 </el-form-item>
                 <el-form-item label="产品描述">
                     <quill-editor class="input-width-area"
                                   ref="myTextEditor"
-                                  v-model="productEntity.desc"
+                                  :disabled="isModify"
+                                  v-model="productEntity.desp"
                                   :options="editorDescOption" @change="onEditorChange($event)"></quill-editor>
                 </el-form-item>
                 <el-form-item label="列表图片">
@@ -86,7 +88,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" v-if="dealType == 'add'" @click="onSubmit">保存产品</el-button>
-                    <el-button type="primary" v-if="dealType == 'modify'" @click="onSubmit">保存修改</el-button>
+                    <el-button type="primary" v-if="dealType == 'modify'" @click="upDate">保存修改</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -120,7 +122,7 @@
                     productionDate: '',
                     status: '0',
                     notice: '',
-                    desc: '',
+                    desp: '',
                     listPicId: '',
                     detailPicId: []
                 },
@@ -175,7 +177,6 @@
         computed: {},
         methods: {
             onEditorChange({ editor, html, text }) {
-                console.log(html)
             },
             // 预览列表页图片
             handleListPreview(file) {
@@ -210,6 +211,7 @@
             },
             // 根据订单id获取订单详情
             queryOrderDetail () {
+                let _that = this
                 this.$http({
                     url: this.baseUrl + '/identity/product/productDetail/' + this.$route.query.id,
                     method: 'GET'
@@ -217,10 +219,21 @@
                     if(res.data.code == 0) {
                         this.productEntity = res.data.data.productEntity
                         this.productEntity.status = this.productEntity.status.toString()
+                        res.data.data.listPicUrl = res.data.data.listPicUrl.replace(/null/g, this.baseUrl)
+                        this.fileListPics = [{name: '', url: res.data.data.listPicUrl}]
+                        this.productEntity.detailPicId = []
+                        res.data.data.detailPicUrl.forEach((item) => {
+                            item = item.replace(/null/g, this.baseUrl)
+                            this.fileSwitchPics.push({name: '', url: item})
+                            let tempSwitchArr = item.split('/')
+                            this.productEntity.detailPicId.push(tempSwitchArr[tempSwitchArr.length - 1])
+                        })
+                        let tempListArr = res.data.data.listPicUrl.split('/')
+                        this.productEntity.listPicId = tempListArr[tempListArr.length - 1]
+                        console.log(this.productEntity)
                     } else {
                         this.$message.error(res.data.message)
                     }
-                    console.log(res)
                 })
             },
             // 获取用户信息
@@ -242,11 +255,33 @@
                     url: this.baseUrl + '/identity/product/saveProduct',
                     method: 'POST',
                     data: {
-                        productEntity: this.productEntity
+                        productEntity: this.productEntity,
+                        listPicId: this.productEntity.listPicId,
+                        detailPicId: this.productEntity.detailPicId
                     }
                 }).then((res) => {
                     if(res.data.code == 0) {
                         this.$router.go(-1)
+                        this.$message.success('保存成功')
+                    }else {
+                        this.$message.error(res.data.message)
+                    }
+                })
+            },
+            upDate() {
+                this.productEntity.id = this.$route.query.id
+                this.$http({
+                    url: this.baseUrl + '/identity/product/update',
+                    method: 'POST',
+                    data: {
+                        productEntity: this.productEntity,
+                        listPicId: this.productEntity.listPicId,
+                        detailPicId: this.productEntity.detailPicId
+                    }
+                }).then((res) => {
+                    if(res.data.code == 0) {
+                        this.$router.go(-1)
+                        this.$message.success('保存成功')
                     }else {
                         this.$message.error(res.data.message)
                     }

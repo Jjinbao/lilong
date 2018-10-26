@@ -68,7 +68,7 @@
                 </el-table-column>
                 <el-table-column prop="payStatus" label="状态" width="120">
                 </el-table-column>
-                <el-table-column fixed="right" label="操作" width="280">
+                <el-table-column fixed="right" label="操作" width="320">
                     <template slot-scope="scope">
                         <el-button type="text" size="small" v-if="scope.row.status != 0" @click="closePro(scope.$index, scope.row)">关闭</el-button>
                         <el-button type="text" size="small" v-if="scope.row.status == 0" @click="openPro(scope.$index, scope.row)">开放</el-button>
@@ -77,6 +77,7 @@
                         <el-button type="text" size="small" v-if="scope.row.status != 0" @click="upToTop(scope.$index, scope.row)">置顶</el-button>
                         <el-button type="text" size="small" @click="orderDetail(scope.$index, scope.row)">详情</el-button>
                         <el-button type="text" size="small" @click="proModify(scope.$index, scope.row)">修改</el-button>
+                        <el-button type="text" size="small" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -136,7 +137,7 @@
 
         <!-- 删除提示框 -->
         <el-dialog title="提示" :visible.sync="delVisible" width="300px" center>
-            <div class="del-dialog-cnt">确认要取消该交易订单？</div>
+            <div class="del-dialog-cnt">确认要删除该商品？</div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="delVisible = false">取 消</el-button>
                 <el-button type="primary" @click="deleteRow">确 定</el-button>
@@ -217,7 +218,6 @@
                         this.productMoney.countContent = res.data.data.countContent
                         this.totalElement = res.data.data.count
                         this.tableData.forEach((item) => {
-                            item.status = 1
                             item.payStatus = OrderStatus.orderStatus.get(item.status.toString()).payType
                         })
                     }
@@ -225,20 +225,75 @@
             },
             // 置顶按钮
             upToTop(index, item) {
-
+                this.$http({
+                    url: this.baseUrl + '/identity/product/setUp/' + item.id,
+                    method: 'GET'
+                }).then((res) => {
+                    if (res.data.code === 0) {
+                        this.addVisible = false
+                        this.$message.success('置顶成功')
+                        this.getData()
+                    } else {
+                        this.$message.error(res.data.message)
+                    }
+                })
             },
             // 关闭按钮
             closePro(index, item) {
-
+                this.$http({
+                    url: this.baseUrl + '/identity/product/changeStatus/' + item.id + '/0',
+                    method: 'GET'
+                }).then((res) => {
+                    if (res.data.code === 0) {
+                        this.addVisible = false
+                        this.$message.success('关闭成功')
+                        this.getData()
+                    } else {
+                        this.$message.error(res.data.message)
+                    }
+                })
             },
             openPro(index, item) {
-
+                this.$http({
+                    url: this.baseUrl + '/identity/product/changeStatus/' + item.id + '/1',
+                    method: 'GET'
+                }).then((res) => {
+                    if (res.data.code === 0) {
+                        this.addVisible = false
+                        this.$message.success('开放成功')
+                        this.getData()
+                    } else {
+                        this.$message.error(res.data.message)
+                    }
+                })
             },
             newPro(index, item) {
-
+                this.$http({
+                    url: this.baseUrl + '/identity/product/changeStatus/' + item.id + '/2',
+                    method: 'GET'
+                }).then((res) => {
+                    if (res.data.code === 0) {
+                        this.addVisible = false
+                        this.$message.success('设置新品成功')
+                        this.getData()
+                    } else {
+                        this.$message.error(res.data.message)
+                    }
+                })
             },
             preNewPro(index, item) {
-
+                this.$http({
+                    url: this.baseUrl + '/identity/product/changeStatus/' + item.id + '/3',
+                    method: 'GET'
+                }).then((res) => {
+                    if (res.data.code === 0) {
+                        this.addVisible = false
+                        this.$message.success('设置预售新品成功')
+                        this.getData()
+                    } else {
+                        this.$message.error(res.data.message)
+                    }
+                })
             },
             searByName () {
                 this.reqParams.pageNum = 1;
@@ -401,6 +456,9 @@
                     path: '/order-detail?type=modify&id=' + item.id
                 })
             },
+            delete() {
+                this.addVisible = true
+            },
             orderDetail (index, item) {
                 this.$router.push({
                     path: '/order-detail?type=detail&id=' + item.id
@@ -413,27 +471,19 @@
                 this.$message.success(`修改第 ${this.idx + 1} 行成功`);
             },
             // 确定删除
-            deleteRow(){
-                console.log(this.idx)
-                //this.tableData.splice(this.idx, 1);
-                let id = this.tableData[this.idx].id
-                // this.$message.success('删除成功');
+            deleteRow(index, item){
                 this.$http({
-                    url: this.baseUrl + '/identity/transOrder/cancelTransOrder/' + id,
+                    url: this.baseUrl + '/identity/product/changeStatus/' + this.tableData[this.idx].id + '/4',
                     method: 'GET'
                 }).then((res) => {
-                    if (res.data.code == 0) {
-                        this.$message.success(`订单取消成功`);
-                        this.reqParams.pageNum = 1
+                    if (res.data.code === 0) {
+                        this.delVisible = false
+                        this.$message.success('删除成功')
                         this.getData()
-                    } else if (res.data.code == 51004){
-                        this.$message.error(`订单取消失败`);
-                    } else if (res.data.code == 51003) {
-                        this.$message.error(`订单取消失败,订单已发货`);
+                    } else {
+                        this.$message.error(res.data.message)
                     }
-                    this.delVisible = false;
                 })
-
             }
         }
     }
