@@ -11,10 +11,10 @@
                     <el-form-item label="产品状态">
                         <el-select v-model="reqParams.status" @change="payTypeChange" placeholder="订单状态">
                             <el-option label="全部" value="-1"></el-option>
-                            <el-option label="关闭" value="1"></el-option>
-                            <el-option label="开放" value="2"></el-option>
-                            <el-option label="新品" value="3"></el-option>
-                            <el-option label="预售新品" value="4"></el-option>
+                            <el-option label="关闭" value="0"></el-option>
+                            <el-option label="开放" value="1"></el-option>
+                            <el-option label="新品" value="2"></el-option>
+                            <el-option label="预售新品" value="3"></el-option>
                         </el-select>
                         <el-input v-model="reqParams.search" placeholder="请输入品牌/品名" class="handle-input"></el-input>
                         <!--<el-date-picker-->
