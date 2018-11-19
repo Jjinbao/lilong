@@ -199,9 +199,6 @@
             },
             // 移除列表页图片
             handleSwitchRemove(file, fileList) {
-                console.log(fileList)
-                console.log(this.productEntity)
-                console.log(file)
                 if(this.dealType == 'add') {
                     let index = this.productEntity.detailPicId.indexOf(file.response.data.picId)
                     this.productEntity.detailPicId.splice(index, 1)
