@@ -199,8 +199,19 @@
             },
             // 移除列表页图片
             handleSwitchRemove(file, fileList) {
-                let index = this.productEntity.detailPicId.indexOf(file.response.data.picId)
-                this.productEntity.detailPicId.splice(index, 1)
+                console.log(fileList)
+                console.log(this.productEntity)
+                console.log(file)
+                if(this.dealType == 'add') {
+                    let index = this.productEntity.detailPicId.indexOf(file.response.data.picId)
+                    this.productEntity.detailPicId.splice(index, 1)
+                } else if((this.dealType == 'modify')) {
+                    this.productEntity.detailPicId.forEach((item, idx) => {
+                        if(file.url.indexOf(item) >= 0) {
+                            this.productEntity.detailPicId.splice(idx, 1)
+                        }
+                    })
+                }
             },
             // 列表页图片上传能成功
             handleSwitchSuccess(response, file, fileList) {
